@@ -1752,7 +1752,7 @@ window.addEventListener('resize', checkTouchDevice);
 function getTierShortText(tier) {
     const num = parseInt(tier);
     if (isNaN(num) || num === 0) return "";
-    return `T${num}`;
+    return String(num);
 }
 
 
