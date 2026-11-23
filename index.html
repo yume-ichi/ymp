@@ -1746,9 +1746,9 @@ checkTouchDevice();
 window.addEventListener('resize', checkTouchDevice);
 
 function getTierShortText(tier) {
-    const num = parseInt(tier);
-    if (isNaN(num) || num === 0) return "";
-    return String(num);
+    const t = String(tier == null ? '' : tier).trim();
+    if (t === '' || t === '0' || t === '-') return "";
+    return t;
 }
 
 
@@ -2500,10 +2500,10 @@ if (el.sortMode) {
 
 // Tier Cycle Handlers
 function cycleTier(current, dir) {
-    let num = parseInt(current);
-    if (isNaN(num)) num = 0;
+    const t = String(current == null ? '' : current).trim();
+    let num = /^[+-]?\d+$/.test(t) ? parseInt(t, 10) : 0;
     num += dir;
-    return Math.max(-999, Math.min(1000, num));
+    return String(num);
 }
 
 document.getElementById('btn-now-tier-down')?.addEventListener('click', () => {
@@ -3147,8 +3147,10 @@ function encodeShareData() {
             // YouTube: just the ID
             token = extractId(item.id) || item.id;
         }
-        const tier = parseInt(item.tier) || 0;
-        if (tier !== 0) token += '~' + tier;
+        const tier = String(item.tier == null ? '' : item.tier).trim();
+        if (tier !== '' && tier !== '0') {
+            token = token.replace(/~/g, '%7E') + '~' + encodeURIComponent(tier).replace(/~/g, '%7E');
+        }
         return token;
     }).join(',');
 }
@@ -3160,11 +3162,12 @@ function decodeShareData(compact) {
         const tildeIdx = token.lastIndexOf('~');
         if (tildeIdx > 0) {
             const maybeTier = token.substring(tildeIdx + 1);
-            if (/^-?\d+$/.test(maybeTier)) {
-                tierStr = maybeTier;
+            if (maybeTier) {
+                try { tierStr = decodeURIComponent(maybeTier); } catch (e) { tierStr = maybeTier; }
                 body = token.substring(0, tildeIdx);
             }
         }
+        body = body.replace(/%7E/gi, '~');
         let type = 'youtube', id = body;
         if (body.startsWith('S:')) {
             type = 'soundcloud';
@@ -3515,40 +3518,11 @@ el.progressContainer.onclick = (e) => {
 };
 
 // IO
-// Tier形式変換関数
+// Tier: 入力された文字列をそのままtierとして扱う（数値への変換はしない）
 function convertOldTierToNew(tier) {
-    if (tier === null || tier === undefined || tier === '') return 0;
-
-    // Check if it's already a number or numeric string
-    const num = parseInt(tier);
-    if (!isNaN(num) && String(num) === String(tier).trim()) {
-        return Math.max(-999, Math.min(1000, num));
-    }
-
-    let sTier = String(tier).trim();
-    sTier = sTier.replace(/★/g, '＊');
-
-    if (sTier === '💯') return 1000;
-    if (sTier === 'Fail') return -999;
-    if (sTier === '-') return 0;
-    if (sTier === '×') return -100;
-    if (sTier === '△') return 100;
-
-    const stars = sTier.match(/＊/g);
-    if (stars) {
-        return Math.min(1000, stars.length * 100 + 100);
-    }
-
-    const tierMap = {
-        'SSSSS': 600, 'SSSS': 500, 'SSS': 400, 'SS': 300,
-        'S+': 250, 'S': 200, 'S-': 150,
-        'A+': 120, 'A': 100, 'A-': 80,
-        'B+': 50, 'B': 0, 'B-': -10,
-        'C+': -50, 'C': -100, 'C-': -150,
-        'D+': -200, 'D': -300, 'D-': -400,
-        'F': -900, 'F-': -950, 'F--': 1000
-    };
-    return tierMap[sTier] !== undefined ? tierMap[sTier] : 0;
+    if (tier === null || tier === undefined) return '0';
+    const t = String(tier).trim();
+    return t === '' ? '0' : t;
 }
 
 function processImportFile(f) {
