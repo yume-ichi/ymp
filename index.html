@@ -185,7 +185,7 @@
                         <li>バージョン表記を v0.2.9 から v26.10.1 に変更</li>
                         <li>ファイルを index.html 1つにまとめました</li>
                         <li>YouTube検索を高速化（複数の検索サーバーに同時に問い合わせ）</li>
-                        <li>共有リンクのURLを https://yume-ichi.github.io/ymp/ に変更</li>
+                        <li>共有リンクのURLを https://ymp-029.github.io/ymp/ に変更</li>
                         <li>📸スクリーンショットの背景のぼかしを強化</li>
                         <li>アクセスカウンターを新しい方式に変更</li>
                         <li>お知らせ・更新履歴を追加</li>
@@ -442,7 +442,7 @@
                             <button id="btn-now-tier-down" class="btn small-btn"
                                 style="padding:0.2rem 0.4rem; border:none; background:transparent;"
                                 title="Tier Down">⇩</button>
-                            <input type="text" id="now-tier" class="info-input" value="0"
+                            <input type="text" id="now-tier" class="info-input" value="" placeholder="-"
                                 style="width:40px; text-align:center; font-weight:bold; padding:0; background:transparent;">
                             <button id="btn-now-tier-up" class="btn small-btn"
                                 style="padding:0.2rem 0.4rem; border:none; background:transparent;"
@@ -572,7 +572,7 @@
                                 <button id="btn-add-tier-down" class="btn small-btn"
                                     style="padding:0.2rem 0.4rem; border:none; background:transparent;"
                                     title="Tier Down">⇩</button>
-                                <input type="text" id="add-tier" class="app-input" value="0"
+                                <input type="text" id="add-tier" class="app-input" value="" placeholder="-"
                                     style="width:50px; text-align:center; font-weight:bold; font-size:0.9rem; padding:0; height:24px;">
                                 <button id="btn-add-tier-up" class="btn small-btn"
                                     style="padding:0.2rem 0.4rem; border:none; background:transparent;"
@@ -605,7 +605,8 @@
                     <select id="sort-mode" class="btn small-btn sort-select"
                         style="padding: 0.2rem 0.4rem; min-width: 70px;">
                         <option value="manual">手動</option>
-                        <option value="tier">Tier順 (数値)</option>
+                        <option value="tier">Tier順 (昇順)</option>
+                        <option value="tier-desc">Tier順 (降順)</option>
                     </select>
                     <button id="btn-dedupe" class="btn orange-btn small-btn">Dedupe</button>
                     <button id="btn-copy-sel-q" class="btn primary-btn small-btn">Copy</button>
@@ -657,13 +658,13 @@ Promise.resolve({ version: 'vv0.3.B' }).then(data => {
     const titleEl = document.getElementById('help-modal-title');
     const urlEl = document.getElementById('help-modal-url');
     if (titleEl) titleEl.textContent = `YMP - ${v}`;
-    if (urlEl) urlEl.textContent = `https://yume-ichi.github.io/ymp/`;
+    if (urlEl) urlEl.textContent = `https://ymp-029.github.io/ymp/`;
 
     // Screenshot Card
     const sBrandTitle = document.getElementById('share-brand-title');
     const sBrandUrl = document.getElementById('share-brand-url');
     if (sBrandTitle) sBrandTitle.textContent = `YMP - ${v}`;
-    if (sBrandUrl) sBrandUrl.textContent = `https://yume-ichi.github.io/ymp/`;
+    if (sBrandUrl) sBrandUrl.textContent = `https://ymp-029.github.io/ymp/`;
 
     // Footer
     const footerVer = document.querySelector('.footer-version');
@@ -1121,7 +1122,7 @@ function syncCurrentInfo() {
         }
 
         // Only update if values are different to avoid flickering cursor
-        const displayTitle = (item.tier && item.tier !== '-') ? `[${item.tier}] ${item.title}` : item.title;
+        const displayTitle = (item.tier) ? `[${item.tier}] ${item.title}` : item.title;
         if (el.nowTitle.value !== displayTitle && document.activeElement !== el.nowTitle) {
             el.nowTitle.value = displayTitle;
         }
@@ -1140,8 +1141,8 @@ function syncCurrentInfo() {
             el.nowId.value = displayUrl;
         }
 
-        if (el.nowTier && el.nowTier.value !== String(item.tier || "0")) {
-            el.nowTier.value = item.tier || "0";
+        if (el.nowTier && el.nowTier.value !== String(item.tier == null ? "" : item.tier)) {
+            el.nowTier.value = item.tier == null ? "" : item.tier;
             if (el.nowTierDisplay) el.nowTierDisplay.textContent = getTierShortText(item.tier || "-");
         }
 
@@ -1563,7 +1564,7 @@ async function addToQueue(uOrId, tIn, aIn, memoIn, tierIn) {
                 if (el.addAuthor) el.addAuthor.value = "";
                 if (el.addMemo) el.addMemo.value = "";
                 if (el.addTier) {
-                    el.addTier.value = "0";
+                    el.addTier.value = "";
                     if (el.addTierDisplay) el.addTierDisplay.textContent = "-";
                 }
 
@@ -1654,7 +1655,7 @@ async function addToQueue(uOrId, tIn, aIn, memoIn, tierIn) {
                         it.author = meta.author;
                         it.thumbnail = meta.thumbnail;
                         if (currentIndex === qIdx) {
-                            el.nowTitle.value = (it.tier && it.tier !== '-') ? `[${it.tier}] ${it.title}` : it.title;
+                            el.nowTitle.value = (it.tier) ? `[${it.tier}] ${it.title}` : it.title;
                             el.nowAuthor.value = it.author;
                         }
                     }
@@ -1670,7 +1671,7 @@ async function addToQueue(uOrId, tIn, aIn, memoIn, tierIn) {
                         it.thumbnail = meta.thumbnail;
                         it.isShort = false; // Vimeo usually not marked as shorts this way
                         if (currentIndex === qIdx) {
-                            el.nowTitle.value = (it.tier && it.tier !== '-') ? `[${it.tier}] ${it.title}` : it.title;
+                            el.nowTitle.value = (it.tier) ? `[${it.tier}] ${it.title}` : it.title;
                             el.nowAuthor.value = it.author;
                         }
                     }
@@ -1710,7 +1711,7 @@ async function addToQueue(uOrId, tIn, aIn, memoIn, tierIn) {
                         it.author = meta.author;
                         it.isShort = meta.isShort;
                         if (currentIndex === qIdx) {
-                            el.nowTitle.value = (it.tier && it.tier !== '-') ? `[${it.tier}] ${it.title}` : it.title;
+                            el.nowTitle.value = (it.tier) ? `[${it.tier}] ${it.title}` : it.title;
                             el.nowAuthor.value = it.author;
                         }
                     }
@@ -1747,7 +1748,7 @@ window.addEventListener('resize', checkTouchDevice);
 
 function getTierShortText(tier) {
     const t = String(tier == null ? '' : tier).trim();
-    if (t === '' || t === '0' || t === '-') return "";
+    if (t === '') return "";
     return t;
 }
 
@@ -1780,7 +1781,7 @@ function renderQueue() {
             <div class="q-info">
                 <div class="q-title-row">
                     <span class="q-title">
-                        ${item.tier && item.tier !== '-' && item.tier != 0 && item.tier !== '0' ? `<span class="q-tier-label">${getTierShortText(item.tier)}</span> ` : ''}${safe(item.title)}
+                        ${item.tier ? `<span class="q-tier-label">${getTierShortText(item.tier)}</span> ` : ''}${safe(item.title)}
                     </span>
                 </div>
                 <span class="q-author">${safe(item.author)}</span>
@@ -1813,7 +1814,7 @@ function renderQueue() {
                 selectedListIndex = i; // Keep this for editor context
 
                 // Show info in editor for the clicked item
-                const displayTitle = (item.tier && item.tier !== '-' && item.tier != 0 && item.tier !== '0') ? `[${getTierShortText(item.tier)}] ${item.title}` : item.title;
+                const displayTitle = (item.tier) ? `[${getTierShortText(item.tier)}] ${item.title}` : item.title;
                 el.nowTitle.value = displayTitle;
                 el.nowAuthor.value = item.author;
                 if (el.nowMemo) el.nowMemo.value = item.memo || "";
@@ -1909,15 +1910,16 @@ function renderQueue() {
     el.queueStatus.innerText = `${queue.length} / ${MAX_QUEUE}`;
 }
 
-function sortQueueByTier() {
+function sortQueueByTier(desc = false) {
     const playingId = currentIndex >= 0 ? queue[currentIndex].id : null;
-    // 数値順（昇順）。空は0扱い。数値でないTierは数値の後ろに回し、Unicode順（昇順）で並べる。
+    // 昇順: 数値順（空は0扱い）→ 数値でないTierはUnicodeコードポイント順。降順はその完全な逆順。
     const tierNum = (t) => {
         const str = String(t == null ? '' : t).trim();
         if (str === '') return 0;
         return /^[+-]?\d+(\.\d+)?$/.test(str) ? Number(str) : null;
     };
-    queue.sort((a, b) => {
+    const dir = desc ? -1 : 1;
+    queue.sort((a, b) => dir * ((a, b) => {
         const nA = tierNum(a.tier);
         const nB = tierNum(b.tier);
         if (nA !== null && nB !== null) return nA - nB;
@@ -1934,7 +1936,7 @@ function sortQueueByTier() {
             if (cpA !== cpB) return cpA - cpB;
         }
         return 0;
-    });
+    })(a, b));
     currentIndex = playingId ? queue.findIndex(it => it.id === playingId) : -1;
     selectedListIndex = -1;
     renderQueue();
@@ -2482,7 +2484,7 @@ document.getElementById('btn-add').onclick = async () => {
     if (res !== "SEARCH_MODAL_OPENED" && res !== "SEARCH_FAILED") {
         el.addUrl.value = el.addTitle.value = el.addAuthor.value = el.addMemo.value = '';
         if (el.addTier) {
-            el.addTier.value = '0';
+            el.addTier.value = '';
             if (el.addTierDisplay) el.addTierDisplay.textContent = "-";
         }
     }
@@ -2492,7 +2494,9 @@ document.getElementById('btn-add').onclick = async () => {
 if (el.sortMode) {
     el.sortMode.onchange = () => {
         if (el.sortMode.value === 'tier') {
-            sortQueueByTier();
+            sortQueueByTier(false);
+        } else if (el.sortMode.value === 'tier-desc') {
+            sortQueueByTier(true);
         }
         // 'manual' doesn't need action - user can drag to reorder
     };
@@ -2501,9 +2505,15 @@ if (el.sortMode) {
 // Tier Cycle Handlers
 function cycleTier(current, dir) {
     const t = String(current == null ? '' : current).trim();
-    let num = /^[+-]?\d+$/.test(t) ? parseInt(t, 10) : 0;
-    num += dir;
-    return String(num);
+    const m = t.match(/^([+-]?)(\d+)$/);
+    if (!m) return String(dir); // 数値以外・空欄は 0 を基準に増減
+    // 桁数（先頭のゼロ埋め）と + 記号を保持する。例: 00→01, 09→10, 01→00, 00→-01
+    const width = m[2].length;
+    let n = BigInt(m[2]) * (m[1] === '-' ? -1n : 1n) + BigInt(dir);
+    const neg = n < 0n;
+    if (neg) n = -n;
+    const digits = n.toString().padStart(width, '0');
+    return (neg ? '-' : (m[1] === '+' ? '+' : '')) + digits;
 }
 
 document.getElementById('btn-now-tier-down')?.addEventListener('click', () => {
@@ -3148,7 +3158,7 @@ function encodeShareData() {
             token = extractId(item.id) || item.id;
         }
         const tier = String(item.tier == null ? '' : item.tier).trim();
-        if (tier !== '' && tier !== '0') {
+        if (tier !== '') {
             token = token.replace(/~/g, '%7E') + '~' + encodeURIComponent(tier).replace(/~/g, '%7E');
         }
         return token;
@@ -3157,7 +3167,7 @@ function encodeShareData() {
 
 function decodeShareData(compact) {
     return compact.split(',').filter(t => t).map(token => {
-        let tierStr = '0';
+        let tierStr = '';
         let body = token;
         const tildeIdx = token.lastIndexOf('~');
         if (tildeIdx > 0) {
@@ -3198,11 +3208,11 @@ document.getElementById('share-github-btn').onclick = async () => {
     if (!currentShareData) return;
     try {
         const data = { version: 'vv0.3.B' };
-        const url = `https://yume-ichi.github.io/ymp/?=${currentShareData}`;
+        const url = `https://ymp-029.github.io/ymp/?=${currentShareData}`;
         document.getElementById('share-link-output').value = url;
     } catch (e) {
         console.error("Failed to fetch version.json", e);
-        const url = `https://yume-ichi.github.io/ymp/?=${currentShareData}`;
+        const url = `https://ymp-029.github.io/ymp/?=${currentShareData}`;
         document.getElementById('share-link-output').value = url;
     }
 };
@@ -3435,7 +3445,7 @@ el.nowTitle.oninput = () => {
         const target = document.querySelector(`.queue-item[data-idx="${idx}"] .q-title`);
         if (target) {
             // Re-render only the title part or just text if shorthand isn't used
-            const labelHtml = (queue[idx].tier && queue[idx].tier != 0 && queue[idx].tier !== '0' && queue[idx].tier !== '-') ? `<span class="q-tier-label">${getTierShortText(queue[idx].tier)}</span> ` : '';
+            const labelHtml = (queue[idx].tier) ? `<span class="q-tier-label">${getTierShortText(queue[idx].tier)}</span> ` : '';
             target.innerHTML = `${labelHtml}${safe(el.nowTitle.value)}`;
         }
     }
@@ -3520,9 +3530,8 @@ el.progressContainer.onclick = (e) => {
 // IO
 // Tier: 入力された文字列をそのままtierとして扱う（数値への変換はしない）
 function convertOldTierToNew(tier) {
-    if (tier === null || tier === undefined) return '0';
-    const t = String(tier).trim();
-    return t === '' ? '0' : t;
+    if (tier === null || tier === undefined) return '';
+    return String(tier).trim();
 }
 
 function processImportFile(f) {
@@ -3572,7 +3581,7 @@ function processImportFile(f) {
             importedQueue = lines.map(line => {
                 // If it looks like a URL, create a basic item
                 if (line.includes('http') || line.length === 11) {
-                    return { id: extractId(line), title: "Loading...", author: "...", tier: "×" };
+                    return { id: extractId(line), title: "Loading...", author: "...", tier: "" };
                 }
                 return null;
             }).filter(i => i !== null);
@@ -3587,7 +3596,7 @@ function processImportFile(f) {
                     type: isSoundCloudUrl(item) ? 'soundcloud' : (isVimeoUrl(item) ? 'vimeo' : 'youtube'),
                     title: "Loading...",
                     author: "...",
-                    tier: "×",
+                    tier: "",
                     lastTime: 0
                 };
             }
@@ -3761,7 +3770,7 @@ async function processPlayqFile(f) {
                     type: isSoundCloudUrl(item) ? 'soundcloud' : (isVimeoUrl(item) ? 'vimeo' : 'youtube'),
                     title: "Loading...",
                     author: "...",
-                    tier: "×",
+                    tier: "",
                     lastTime: 0
                 };
             }
@@ -4122,7 +4131,7 @@ function handleFiles(files) {
                 title: f.name,
                 author: 'Local File',
                 file: f, // Store File object
-                tier: '×',
+                tier: '',
                 lastTime: 0,
                 duration: 0
             };
@@ -4249,7 +4258,7 @@ document.getElementById('url-import-btn').onclick = () => {
                         type: item.type || 'youtube',
                         title: item.title || 'Loading...',
                         author: item.author || '',
-                        tier: item.tier || '0',
+                        tier: item.tier || '',
                         lastTime: 0,
                         duration: 0,
                         memo: ''
@@ -5358,7 +5367,7 @@ function initFromUrlParams() {
                         type: item.type || 'youtube',
                         title: item.title || 'Loading...',
                         author: item.author || '',
-                        tier: item.tier || '0',
+                        tier: item.tier || '',
                         lastTime: 0,
                         duration: 0,
                         memo: ''
@@ -5935,8 +5944,8 @@ window.addEventListener('appinstalled', (event) => {
         (function () {
             const box = document.querySelector('#access-counter .ac-r');
             if (!box) return;
-            const NS = 'yume-ichi', KEY = 'ymp';
-            const isPublic = location.hostname === 'yume-ichi.github.io';
+            const NS = 'ymp-029', KEY = 'ymp';
+            const isPublic = location.hostname === 'ymp-029.github.io';
             let counted = false;
             try { counted = sessionStorage.getItem('ymp_counted') === '1'; } catch (e) { }
             const doHit = isPublic && !counted;
